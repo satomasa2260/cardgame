@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>癒しの神経衰弱</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>癒しの神経衰弱</h1>
+        
+        <div class="game-info">
+            <div class="score">スコア: <span id="score">0</span></div>
+            <div class="pairs">ペア: <span id="pairs">0</span>/8</div>
+            <button id="restart" class="btn">リスタート</button>
+        </div>
+        
+        <div id="game-board" class="game-board">
+            <!-- カードはJavaScriptで動的に生成 -->
+        </div>
+        
+        <div id="win-message" class="win-message hidden">
+            <h2>おめでとうございます！</h2>
+            <p>スコア: <span id="final-score">0</span></p>
+            <button id="play-again" class="btn">もう一度遊ぶ</button>
+        </div>
+    </div>
+    
+    <!-- 効果音 -->
+    <audio id="card-flip" src="sounds/card-flip.mp3" preload="auto"></audio>
+    <audio id="card-match" src="sounds/card-match.mp3" preload="auto"></audio>
+    <audio id="win-sound" src="sounds/win.mp3" preload="auto"></audio>
+    
+    <!-- BGM -->
+    <audio id="bgm" loop>
+        <source src="sounds/bgm.mp3" type="audio/mp3">
+    </audio>
+    
+    <script src="script.js"></script>
+</body>
+</html>
