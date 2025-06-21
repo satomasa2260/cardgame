@@ -126,8 +126,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // カードをめくる
         flipCardAnimation(card);
         
-        // 効果音を再生
-        playSound('flip');
+        // カードをめくる効果音を再生（少し遅らせて再生）
+        setTimeout(() => {
+            playSound('card-flip');
+        }, 50);
         
         // めくったカードを記録
         gameState.flippedCards.push(index);
@@ -171,8 +173,10 @@ document.addEventListener('DOMContentLoaded', () => {
             createMatchEffect(firstCard.element);
             createMatchEffect(secondCard.element);
             
-            // 効果音を再生
-            playSound('match');
+            // マッチ音を再生（少し遅らせて再生）
+            setTimeout(() => {
+                playSound('card-match');
+            }, 100);
             
             // ボーナススコアを加算
             gameState.score += 50;
@@ -299,25 +303,46 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // サウンドを再生
     function playSound(soundName) {
+        console.log(`Playing sound: ${soundName}`);
         try {
-            if (sounds[soundName]) {
-                const sound = sounds[soundName];
-                sound.currentTime = 0;
-                const playPromise = sound.play();
-                
-                if (playPromise !== undefined) {
-                    playPromise.catch(error => {
-                        console.log('音声再生エラー:', error);
-                        // ユーザーインタラクションがまだの可能性があるので、イベントリスナーを設定
-                        document.body.addEventListener('click', function enableSound() {
-                            sound.play().catch(e => console.log('再試行エラー:', e));
-                            document.body.removeEventListener('click', enableSound);
-                        }, { once: true });
-                    });
-                }
+            const sound = sounds[soundName];
+            if (!sound) {
+                console.error(`Sound not found: ${soundName}`);
+                return;
             }
+            
+            // 音声をクローンして再生（連続再生を可能にするため）
+            const soundClone = sound.cloneNode();
+            soundClone.volume = soundName === 'bgm' ? 0.3 : 0.5;
+            
+            const playPromise = soundClone.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.log(`音声再生エラー (${soundName}):`, error);
+                    // ユーザーインタラクションを待って再生を試みる
+                    const playAfterInteraction = () => {
+                        soundClone.play().catch(e => console.log(`再試行エラー (${soundName}):`, e));
+                        document.body.removeEventListener('click', playAfterInteraction);
+                        document.body.removeEventListener('keydown', playAfterInteraction);
+                        document.body.removeEventListener('touchstart', playAfterInteraction);
+                    };
+                    
+                    document.body.addEventListener('click', playAfterInteraction, { once: true });
+                    document.body.addEventListener('keydown', playAfterInteraction, { once: true });
+                    document.body.addEventListener('touchstart', playAfterInteraction, { once: true });
+                });
+            }
+            
+            // 再生後に要素を削除（メモリリーク防止）
+            soundClone.onended = () => {
+                if (soundName !== 'bgm') {
+                    soundClone.remove();
+                }
+            };
+            
         } catch (e) {
-            console.log('サウンド再生エラー:', e);
+            console.error(`サウンド再生エラー (${soundName}):`, e);
         }
     }
     
